@@ -1,0 +1,27 @@
+SELECT 
+    DATE(c.stat_time_day)                AS stat_date,
+    IFNULL(MAX(v.unique_video_count), 0) AS number_of_posts,
+    SUM(c.cost)                          AS gmv_max_spending,
+    -- Affiliate GMV still from creative level, excluding Seller Card
+    IFNULL(MAX(cr.affiliate_gmv), 0)     AS gmv_max_affiliate_gmv
+FROM tt_prd_gmv_campaign_lv c
+LEFT JOIN (
+    -- Affiliate GMV from creative level, Seller Card excluded
+    SELECT 
+        DATE(stat_time_day)              AS stat_date,
+        SUM(gross_revenue)               AS affiliate_gmv
+    FROM tt_prd_gmv_creative_lv
+    WHERE item_id != '-1'
+    GROUP BY 1
+) cr ON DATE(c.stat_time_day) = cr.stat_date
+LEFT JOIN (
+    -- Unique video posts per day
+    SELECT 
+        DATE(video_post_time)            AS post_date, 
+        COUNT(DISTINCT video_id)         AS unique_video_count
+    FROM tts_video_stats
+    WHERE video_id != '-1'
+    GROUP BY 1
+) v ON DATE(c.stat_time_day) = v.post_date
+GROUP BY DATE(c.stat_time_day)
+ORDER BY stat_date DESC;
