@@ -1,0 +1,30 @@
+SELECT 
+    t1.username AS `Creator username`,
+    CONCAT('https://www.tiktok.com/@', t1.username, '/video/', t1.video_id) AS `Video link`,
+    DATE_FORMAT(t1.video_post_time, '%Y-%m-%d') AS `Video post date`,
+
+    t2.start_date AS `Performance Date`,
+    t2.gmv_amount AS `Video GMV`,
+    t2.items_sold AS `Affiliate items sold`,
+    t1.views AS `Shoppable video views`,
+
+    t3.title AS `Linked Product Name`
+
+FROM boosters.tts_video_stats AS t1
+
+INNER JOIN boosters.tts_video_daily_stats AS t2 
+    ON t1.video_id = t2.video_id
+    AND t2.start_date = (
+        SELECT MAX(start_date) 
+        FROM boosters.tts_video_daily_stats 
+        WHERE video_id = t1.video_id
+    )
+
+INNER JOIN boosters.tts_products AS t3 
+    ON t3.product_id = JSON_UNQUOTE(JSON_EXTRACT(t1.products, '$[0].id'))
+
+WHERE t3.title IS NOT NULL
+  AND t3.title != ''
+  AND DATE(t1.video_post_time) >= '2026-04-01'
+
+ORDER BY t2.gmv_amount DESC;
