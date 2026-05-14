@@ -1,0 +1,33 @@
+SELECT
+order_api_id,
+order_created_at,
+order_created_at_pdt,
+order_updated_at,
+status,
+(sub_total + shipping_fee) AS matched_gmv,
+original_total_product_price,
+platform_discount,
+seller_discount,
+product_tax,
+sub_total,
+tax,
+total_amount,
+original_shipping_fee,
+shipping_fee,
+shipping_fee_platform_discount,
+shipping_fee_seller_discount,
+shipping_fee_tax,
+shipping_type,
+delivery_option_name,
+
+
+fulfillment_type,
+is_cod,
+is_on_hold_order,
+is_replacement_order,
+tracking_number,
+paid_time,
+release_date
+FROM tiktok_shop_order_infos
+WHERE is_sample_order = 0
+ORDER BY order_created_at_pdt DESC;
