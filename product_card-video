@@ -1,0 +1,12 @@
+SELECT 
+    start_date,
+    created_at,
+    updated_at,
+    DATEDIFF(updated_at, created_at) AS days_until_update,
+    video_gmv,
+    product_card_gmv,
+    gmv_amount
+FROM boosters.tts_shop_stats
+WHERE updated_at != created_at
+ORDER BY start_date DESC
+LIMIT 20;
